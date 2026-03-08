@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sign Language Detection (Basic Semester Project)
 
 A real-time sign language detection MVP using:
@@ -106,3 +107,6 @@ Detecting **all words and full sentences in universal sign language** is not fea
 - Add deep learning classifier for better accuracy
 - Add GUI dashboard with Tkinter/Pygame
 - Add sentence-level sign interpretation
+=======
+# comp-graphics
+>>>>>>> 4fba1ac4d510ac81d23fbd0c35057458b35a3b70
