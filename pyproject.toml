@@ -1,0 +1,5 @@
+[project]
+name = "sign-language-detection-basic"
+version = "0.1.0"
+description = "Basic real-time sign language detection using OpenCV + MediaPipe"
+requires-python = ">=3.14,<3.15"
