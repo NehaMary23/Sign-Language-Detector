@@ -1,9 +1,8 @@
 import streamlit as st
-import cv2
+from PIL import Image, ImageDraw
 import mediapipe as mp
 import numpy as np
 from pathlib import Path
-from collections import deque
 import time
 
 st.set_page_config(page_title="Sign Language Detector", layout="wide")
@@ -46,28 +45,31 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("📹 Webcam Feed")
     
-    # Use Streamlit's camera input (works better on cloud)
+    # Use Streamlit's camera input
     camera_image = st.camera_input("Capture image from webcam")
     
     if camera_image is not None:
-        # Convert to OpenCV format
-        from PIL import Image
-        image = Image.open(camera_image)
-        frame = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+        # Convert to PIL Image
+        image = Image.open(camera_image).convert("RGB")
+        w, h = image.size
         
-        # Process with MediaPipe
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+        # Convert to numpy for MediaPipe
+        img_array = np.array(image)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img_array)
+        
+        # Detect hands
         hand_results = hand_landmarker.detect(mp_image)
         
-        # Draw landmarks
+        # Draw landmarks on PIL image
+        draw = ImageDraw.Draw(image)
+        
         if hand_results.hand_landmarks:
-            h, w, _ = frame.shape
             for hand_landmarks in hand_results.hand_landmarks:
+                # Draw circles on landmark points
                 for landmark in hand_landmarks:
                     x = int(landmark.x * w)
                     y = int(landmark.y * h)
-                    cv2.circle(frame, (x, y), 4, (0, 255, 255), -1)
+                    draw.ellipse([x-4, y-4, x+4, y+4], fill=(0, 255, 255))
                 
                 # Draw connections
                 for conn in vision.HandLandmarksConnections.HAND_CONNECTIONS:
@@ -75,10 +77,10 @@ with col1:
                     end = hand_landmarks[conn.end]
                     x1, y1 = int(start.x * w), int(start.y * h)
                     x2, y2 = int(end.x * w), int(end.y * h)
-                    cv2.line(frame, (x1, y1), (x2, y2), (0, 180, 255), 2)
+                    draw.line([(x1, y1), (x2, y2)], fill=(0, 180, 255), width=2)
         
-        # Display processed frame
-        st.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), use_container_width=True)
+        # Display frame
+        st.image(image, use_container_width=True)
 
 with col2:
     st.subheader("📊 Output")
