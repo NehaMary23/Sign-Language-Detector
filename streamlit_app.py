@@ -1,15 +1,14 @@
 import streamlit as st
 from PIL import Image, ImageDraw
 import mediapipe as mp
+from mediapipe.python.solutions import hands as mp_hands
+from mediapipe.python.solutions import drawing_utils as mp_drawing
+from mediapipe.framework.formats import landmark_pb2
 import numpy as np
 
 st.set_page_config(page_title="Sign Language Detector", layout="wide")
 st.title("🤟 Real-Time Sign Language Detection")
 st.markdown("Detect sign language gestures from your webcam!")
-
-# Initialize MediaPipe Hands
-mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
 
 # Sidebar
 st.sidebar.header("Controls")
