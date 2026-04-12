@@ -4,3 +4,5 @@ libxrender-dev
 libgomp1
 libc6
 libstdc++6
+libgl1-mesa-glx
+libglib2.0-0
