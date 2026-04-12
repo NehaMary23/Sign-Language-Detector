@@ -10,16 +10,36 @@ from collections import deque
 # Add current directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-# Check if we're running on Streamlit Cloud (headless environment)
-IS_STREAMLIT_CLOUD = "STREAMLIT_SERVER_HEADLESS" in os.environ or "streamlit.run" in sys.argv[0]
-
 st.set_page_config(page_title="Sign Language Detector", layout="wide", initial_sidebar_state="expanded")
+
+# Check if we're running on Streamlit Cloud (headless environment)
+IS_STREAMLIT_CLOUD = "STREAMLIT_SERVER_HEADLESS" in os.environ
+
 st.title("🤟 Real-Time Sign Language Detection")
 st.markdown("Detect sign language gestures from your webcam with real-time text and speech output!")
 
-# Initialize detector only if not on cloud
+# Initialize detector
 detector = None
-if not IS_STREAMLIT_CLOUD:
+
+if IS_STREAMLIT_CLOUD:
+    # Cloud environment - show info message and skip detector initialization
+    st.info(
+        """
+        ### 🌐 Running on Streamlit Cloud (Demo Mode)
+        
+        This cloud version shows the interface but **cannot detect hand gestures** because:
+        - Streamlit Cloud is a headless environment (no webcam access)
+        - GPU libraries required by MediaPipe aren't available
+        
+        **For full functionality with hand gesture detection:**
+        1. Clone the repository: `git clone https://github.com/NehaMary23/Sign-Language-Detector.git`
+        2. Follow the [installation instructions](https://github.com/NehaMary23/Sign-Language-Detector#installation)
+        3. Run locally: `streamlit run streamlit_app.py`
+        """
+    )
+    detector = None
+else:
+    # Local environment - try to initialize detector
     try:
         import cv2
         import mediapipe as mp
@@ -39,27 +59,10 @@ if not IS_STREAMLIT_CLOUD:
         detector = load_detector()
         
         if detector is None:
-            st.warning("⚠️ Could not initialize hand gesture detector. Running in demo mode.")
+            st.warning("⚠️ Could not initialize hand gesture detector. Please ensure models are installed.")
     except Exception as e:
-        st.warning(f"⚠️ Cloud environment detected. Running in demo mode.\nFor full functionality, [run locally](https://github.com/NehaMary23/Sign-Language-Detector)")
+        st.warning(f"⚠️ Error initializing detector: {str(e)}")
         detector = None
-else:
-    # Cloud environment - show info message
-    st.info(
-        """
-        ### 🌐 Running on Streamlit Cloud (Demo Mode)
-        
-        This cloud version shows the interface but **cannot detect hand gestures** because:
-        - Streamlit Cloud is a headless environment (no webcam access)
-        - GPU libraries required by MediaPipe aren't available
-        
-        **For full functionality with hand gesture detection:**
-        1. Clone the repository: `git clone https://github.com/NehaMary23/Sign-Language-Detector.git`
-        2. Follow the [installation instructions](https://github.com/NehaMary23/Sign-Language-Detector#installation)
-        3. Run locally: `streamlit run streamlit_app.py`
-        """
-    )
-    detector = None
 
 # Sidebar controls
 st.sidebar.header("⚙️ Settings & Controls")
@@ -87,11 +90,9 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("📹 Webcam Feed")
     
-    if detector is None:
+    if detector is None and IS_STREAMLIT_CLOUD:
         # Cloud mode - show placeholder
-        st.warning("⚠️ Webcam input requires local installation. Run the app locally to use hand gesture detection.")
-        # Still show camera input for UI, but don't process it
-        camera_image = st.camera_input("Capture image from webcam")
+        st.info("💡 Webcam input requires local installation. See setup instructions above.")
     else:
         # Local mode - capture and process
         camera_image = st.camera_input("Capture image from webcam")
