@@ -19,15 +19,23 @@ st.title("🤟 Real-Time Sign Language Detection")
 st.markdown("Detect sign language gestures from your webcam with real-time text and speech output!")
 
 # Initialize detector
-@st.cache_resource
+@st.cache_resource(show_spinner=True)
 def load_detector():
     try:
-        return SignLanguageDetector()
+        detector = SignLanguageDetector()
+        return detector
     except FileNotFoundError as e:
         st.error(f"Error loading model: {e}")
         return None
+    except Exception as e:
+        st.error(f"Unexpected error loading detector: {str(e)}")
+        return None
 
-detector = load_detector()
+try:
+    detector = load_detector()
+except Exception as e:
+    st.error(f"Failed to initialize detector: {str(e)}")
+    detector = None
 
 if detector is None:
     st.error("❌ Failed to load the hand gesture detector. Please ensure hand_landmarker.task is in the models/ folder.")

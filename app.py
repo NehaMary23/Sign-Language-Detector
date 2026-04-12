@@ -32,17 +32,20 @@ class SignLanguageDetector:
                 "Please download hand_landmarker.task into the models folder."
             )
 
-        options = vision.HandLandmarkerOptions(
-            base_options=BaseOptions(
-                model_asset_path=str(self.model_path)
-            ),
-            running_mode=vision.RunningMode.IMAGE,
-            num_hands=2,
-            min_hand_detection_confidence=0.65,
-            min_hand_presence_confidence=0.65,
-            min_tracking_confidence=0.65,
-        )
-        self.hand_landmarker = vision.HandLandmarker.create_from_options(options)
+        try:
+            options = vision.HandLandmarkerOptions(
+                base_options=BaseOptions(
+                    model_asset_path=str(self.model_path)
+                ),
+                running_mode=vision.RunningMode.IMAGE,
+                num_hands=2,
+                min_hand_detection_confidence=0.65,
+                min_hand_presence_confidence=0.65,
+                min_tracking_confidence=0.65,
+            )
+            self.hand_landmarker = vision.HandLandmarker.create_from_options(options)
+        except Exception as e:
+            raise RuntimeError(f"Failed to create HandLandmarker: {str(e)}")
 
         self.pred_buffer = deque(maxlen=10)
         self.last_accepted = ""
@@ -73,6 +76,33 @@ class SignLanguageDetector:
         if self.tts_supported:
             self.tts_thread = threading.Thread(target=self._speech_worker, daemon=True)
             self.tts_thread.start()
+
+    def __hash__(self):
+        """Make detector hashable for Streamlit caching."""
+        return hash(id(self))
+
+    def __eq__(self, other):
+        """Ensure detector is only equal to itself."""
+        return self is other
+
+    def __getstate__(self):
+        """Handle serialization by excluding non-serializable objects."""
+        state = self.__dict__.copy()
+        # Exclude non-serializable objects
+        state['hand_landmarker'] = None
+        state['tts_thread'] = None
+        state['speech_queue'] = None
+        state['tts_stop_event'] = None
+        return state
+
+    def __setstate__(self, state):
+        """Handle deserialization - reinitialize non-serializable objects."""
+        self.__dict__.update(state)
+        # Reinitialize non-serializable objects
+        self.hand_landmarker = None
+        self.tts_thread = None
+        self.speech_queue = queue.Queue(maxsize=50)
+        self.tts_stop_event = threading.Event()
 
     @staticmethod
     def _distance(a, b):
