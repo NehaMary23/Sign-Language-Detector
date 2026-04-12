@@ -1,9 +1,12 @@
 import streamlit as st
 from PIL import Image, ImageDraw
-import mediapipe as mp
-from mediapipe.solutions import hands as mp_hands
-from mediapipe.solutions import drawing_utils as mp_drawing
 import numpy as np
+import mediapipe as mp
+from mediapipe import solutions
+
+# Get the hands solution
+mp_hands = solutions.hands
+mp_drawing = solutions.drawing_utils
 
 st.set_page_config(page_title="Sign Language Detector", layout="wide")
 st.title("🤟 Real-Time Sign Language Detection")
