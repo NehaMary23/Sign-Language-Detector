@@ -3,5 +3,5 @@ libsm6
 libxext6
 libxrender1
 libglib2.0-0t64
-libglesv2-mesa
-libegl1-mesa
+libgles2-mesa
+libegl-mesa0
