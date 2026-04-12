@@ -9,7 +9,6 @@ import mediapipe as mp
 import numpy as np
 from mediapipe.tasks.python import vision
 from mediapipe.tasks.python.core.base_options import BaseOptions
-from mediapipe.tasks.python.core import base_options as base_options_module
 
 try:
     import pyttsx3
@@ -35,8 +34,7 @@ class SignLanguageDetector:
 
         options = vision.HandLandmarkerOptions(
             base_options=BaseOptions(
-                model_asset_path=str(self.model_path),
-                delegate=base_options_module.Delegate.CPU
+                model_asset_path=str(self.model_path)
             ),
             running_mode=vision.RunningMode.IMAGE,
             num_hands=2,
