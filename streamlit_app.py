@@ -1,9 +1,8 @@
 import streamlit as st
 from PIL import Image, ImageDraw
 import mediapipe as mp
-from mediapipe.python.solutions import hands as mp_hands
-from mediapipe.python.solutions import drawing_utils as mp_drawing
-from mediapipe.framework.formats import landmark_pb2
+from mediapipe.solutions import hands as mp_hands
+from mediapipe.solutions import drawing_utils as mp_drawing
 import numpy as np
 
 st.set_page_config(page_title="Sign Language Detector", layout="wide")
