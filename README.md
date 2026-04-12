@@ -1,112 +1,162 @@
-<<<<<<< HEAD
-# Sign Language Detection (Basic Semester Project)
+# 🤟 Sign Language Detector
 
-A real-time sign language detection MVP using:
-
-- Python
-- OpenCV
-- MediaPipe (21 hand landmarks)
-- NumPy
-- Optional text-to-speech (pyttsx3)
-
-This version is built for a **Computer Graphics / Image Processing semester project** and focuses on a **basic level** (word mode):
-
-- `HELLO`, `THANK YOU`, `YES`, `PLEASE`, `NO`, `GOOD`, `I LOVE YOU`
-
----
+A real-time sign language gesture detection application using MediaPipe and Streamlit with text and speech output.
 
 ## Features
 
-- Live webcam hand tracking
-- Gesture-to-word detection (basic fixed vocabulary)
-- Confidence score display
-- Stable prediction logic (reduces flicker)
-- Gesture-to-text conversion (builds sentence over time)
-- Optional voice output (speaks accepted words)
+- 🎥 **Live Webcam Detection** - Real-time hand gesture recognition
+- 🎯 **Multiple Gestures** - HELLO, OK, YES, NO, GOOD, I LOVE YOU, THANK YOU, WATER, PLEASE, HELP, SORRY, STOP
+- 🔊 **Text & Speech Output** - Converts recognized gestures to text and optionally speaks them
+- 📊 **Confidence Scoring** - Shows confidence level for each detection
+- 🎨 **Web Interface** - Built with Streamlit for easy deployment
+- ⚡ **Stable Predictions** - Advanced filtering to reduce flicker and false positives
 
----
+## Tech Stack
 
-## Project Structure
-
-```text
-compg/
-  app.py
-  requirements.txt
-  README.md
-```
-
----
+- **Python 3.13+**
+- **Streamlit** - Web framework
+- **MediaPipe** - Hand landmark detection (21-point hand model)
+- **OpenCV** - Video processing
+- **pyttsx3** - Text-to-speech engine
 
 ## Installation
 
-1. Make sure Python 3.14 is installed.
-2. Install dependencies:
+### Local Setup
 
+1. Clone the repository:
 ```bash
-py -3.14 -m pip install -r requirements.txt
+git clone https://github.com/NehaMary23/Sign-Language-Detector.git
+cd Sign-Language-Detector
 ```
 
----
-
-## Run
-
+2. Create a virtual environment:
 ```bash
-py -3.14 app.py
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1  # Windows
+source .venv/bin/activate      # Linux/Mac
 ```
 
-Press keys while running:
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-- `v`: Toggle voice on/off
-- `c`: Clear output text
-- `q`: Quit
+4. Download the MediaPipe model:
+   - Download `hand_landmarker.task` from [MediaPipe Models](https://developers.google.com/mediapipe/solutions/vision/hand_landmarker#models)
+   - Place it in the `models/` folder
 
----
+## Running Locally
 
-## Demo Flow
+### Streamlit Web App
+```bash
+streamlit run streamlit_app.py
+```
 
-1. Run the program
-2. Webcam starts
-3. Show hand gesture
-4. System recognizes word (`HELLO`, `I LOVE YOU`, etc.)
-5. Recognized words are appended to output text
+The app opens at `http://localhost:8501`
 
-Example on screen:
+### Desktop App
+```bash
+python app.py
+```
 
-- `Gesture detected: I LOVE YOU`
-- `Confidence: 0.86`
-- `Text Output: HELLO I LOVE YOU PLEASE`
+## Deployment to Streamlit Cloud
 
----
+### Step 1: Ensure Repository is Up-to-Date
+```bash
+git add .
+git commit -m "Prepare for Streamlit Cloud deployment"
+git push origin main
+```
 
-## Notes for Presentation
+### Step 2: Deploy to Streamlit Cloud
+1. Go to [share.streamlit.io](https://share.streamlit.io)
+2. Sign in with GitHub
+3. Click "New app"
+4. Connect your repository
+5. Select:
+   - **Repository**: NehaMary23/Sign-Language-Detector
+   - **Branch**: main
+   - **Main file path**: streamlit_app.py
+6. Click "Deploy"
 
-- Explain MediaPipe’s 21 landmark points and fingertip tracking
-- Explain rule-based finger state detection (open/closed fingers)
-- Explain stability filtering and confidence scoring
-- Discuss how this can be extended to sentence-level detection using sequence models
+The app will be live at a URL like: `https://[your-username]-sign-lang-detector.streamlit.app`
 
----
+### Note on Webcam Access
+Streamlit Cloud apps run in the cloud without local webcam access. For webcam functionality, you must:
+- Run the app locally using `streamlit run streamlit_app.py`
+- Or implement the desktop version with `python app.py`
 
-## Important Limitation
+## File Structure
 
-This project is a **rule-based demo** with a small fixed vocabulary.
+```
+Sign-Lang-Detector/
+├── app.py                    # Core detector class & desktop app
+├── streamlit_app.py         # Streamlit web interface
+├── requirements.txt         # Python dependencies
+├── models/
+│   ├── hand_landmarker.task
+│   └── pose_landmarker.task
+├── .streamlit/
+│   └── config.toml         # Streamlit configuration
+└── README.md
+```
 
-Detecting **all words and full sentences in universal sign language** is not feasible with simple hand-shape rules alone. For that, you need:
+## Supported Gestures
 
-- A large labeled sign-language dataset
-- A trained temporal model (LSTM/Transformer) for motion + context
-- Support for both hands, body pose, and facial expressions
-- Language-specific modeling (ASL/ISL/BSL are different languages)
+| Gesture | Hand Shape | Notes |
+|---------|-----------|-------|
+| OK | Thumb-index circle | Middle/ring/pinky open |
+| STOP | Open palm | Wide thumb-pinky spread |
+| YES | Four fingers open, thumb closed | |
+| NO | Closed fist | Thumb crosses fingers |
+| GOOD | Thumbs-up | Thumb only, pointing up |
+| HELP | Thumb open | Thumb down/sideways |
+| I LOVE YOU | Thumb + index + pinky open | Middle & ring closed |
+| WATER | W-handshape | Index/middle/ring open |
+| PLEASE | Open hand | All fingers spread |
+| SORRY | Compact fist | Thumb crosses curled fingers |
+| THANK YOU | Motion gesture | Hand moves outward from face |
+| HELP (2-hand) | One fist + one palm | Stacked hands position |
 
----
+## How It Works
 
-## Future Enhancements
+1. **Hand Detection** - MediaPipe detects hand landmarks in real-time
+2. **Finger Analysis** - Determines which fingers are open/closed
+3. **Gesture Recognition** - Rule-based classifier matches finger patterns to gestures
+4. **Stability Filtering** - Buffers predictions to avoid flicker
+5. **Cooldown Logic** - Prevents rapid repeated recognition of the same gesture
+6. **Text Output** - Recognized words are appended to output text
+7. **Speech Synthesis** - Optional pyttsx3-based voice output
 
-- Add all alphabets (A-Z)
-- Add word-level recognition
-- Add deep learning classifier for better accuracy
-- Add GUI dashboard with Tkinter/Pygame
-- Add sentence-level sign interpretation
-=======
-# comp-graphics
->>>>>>> 4fba1ac4d510ac81d23fbd0c35057458b35a3b70
+## Configuration
+
+Edit `.streamlit/config.toml` to customize:
+- Theme colors
+- Logging level
+- Server settings
+- Browser behavior
+
+## Limitations
+
+- **Fixed vocabulary** - Limited to pre-defined gestures
+- **Single language** - Rule-based, not language-specific
+- **Hand-only** - Doesn't include body pose or facial expressions
+- **Accuracy** - Depends on hand visibility and lighting conditions
+- **No webcam in cloud** - Streamlit Cloud doesn't support webcam access
+
+## Future Improvements
+
+- Add trained model for sentence-level recognition
+- Support for full sign language vocabulary
+- Incorporate body pose and facial expressions
+- Multi-language support (ASL, ISL, BSL)
+- Real-time translation to spoken language
+- Mobile app version
+
+## License
+
+This project is provided as-is for educational purposes.
+
+## Contact
+
+For questions or issues, please create an issue on [GitHub](https://github.com/NehaMary23/Sign-Language-Detector/issues)
