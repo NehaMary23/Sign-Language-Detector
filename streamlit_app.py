@@ -90,14 +90,46 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("📹 Webcam Feed")
     
-    if detector is None and IS_STREAMLIT_CLOUD:
-        # Cloud mode - show placeholder
-        st.info("💡 Webcam input requires local installation. See setup instructions above.")
+    if IS_STREAMLIT_CLOUD:
+        # Cloud version - no webcam support
+        st.info(
+            """
+            ### 🌐 Cloud Version (Demo Mode)
+            
+            This cloud version **cannot access your webcam** because:
+            - No local hardware access in cloud environment
+            - Cannot stream video in real-time
+            
+            ### 🖥️ For Real-Time Detection:
+            
+            **Option 1: Desktop App (Recommended)**
+            ```bash
+            py app.py
+            ```
+            Get **true real-time** video stream with continuous gesture detection
+            
+            **Option 2: Local Streamlit** (single photo capture)
+            ```bash
+            streamlit run streamlit_app.py
+            ```
+            """
+        )
     else:
+        # Local Streamlit version
+        st.info(
+            """
+            💡 **Note:** This Streamlit version captures single images. 
+            
+            For **true real-time detection** with continuous video stream, run:
+            ```bash
+            py app.py
+            ```
+            """
+        )
         # Local mode - capture and process
         camera_image = st.camera_input("Capture image from webcam")
         
-        if camera_image is not None:
+        if camera_image is not None and detector is not None:
             try:
                 import cv2
                 import mediapipe as mp
@@ -185,6 +217,8 @@ with col1:
                 st.image(image, use_container_width=True, caption="Your Gesture")
             except Exception as e:
                 st.error(f"Error processing image: {str(e)}")
+        elif camera_image is not None and detector is None:
+            st.error("❌ Detector not initialized. Please check the error message above.")
 
 with col2:
     st.subheader("📊 Results")
